@@ -1,136 +1,136 @@
 # Pwnagotchi Deauth Whitelist Plugin
 
-Ein Plugin für Pwnagotchi, das eine Whitelist für Deauthentication-Angriffe verwaltet. Netzwerke auf der Whitelist werden nicht von Deauth-Angriffen betroffen.
+A plugin for Pwnagotchi that manages a whitelist for deauthentication attacks. Networks on the whitelist will not be affected by deauth attacks.
 
 ## Features
 
-- 🛡️ Schutz bestimmter Netzwerke vor Deauth-Angriffen
-- 🌐 Web-Interface zur Verwaltung der Whitelist
-- 📝 Unterstützung für MAC-Adressen und ESSID-Namen
-- 💾 Persistente Speicherung der Whitelist
-- 🔄 Echtzeitaktualisierung über die Web-UI
+- 🛡️ Protection of specific networks from deauth attacks
+- 🌐 Web interface for whitelist management
+- 📝 Support for MAC addresses and ESSID names
+- 💾 Persistent whitelist storage
+- 🔄 Real-time updates via Web UI
 
 ## Installation
 
-1. Kopieren Sie `deauth_whitelist.py` in das Pwnagotchi-Plugin-Verzeichnis:
+1. Copy `deauth_whitelist.py` to the Pwnagotchi plugin directory:
    ```bash
    sudo cp deauth_whitelist.py /usr/local/share/pwnagotchi/custom-plugins/
    ```
 
-2. Aktivieren Sie das Plugin in der Pwnagotchi-Konfiguration (`/etc/pwnagotchi/config.toml`):
+2. Enable the plugin in the Pwnagotchi configuration (`/etc/pwnagotchi/config.toml`):
    ```toml
    main.plugins.deauth_whitelist.enabled = true
    ```
 
-3. Starten Sie Pwnagotchi neu:
+3. Restart Pwnagotchi:
    ```bash
    sudo systemctl restart pwnagotchi
    ```
 
-## Verwendung
+## Usage
 
-### Web-Interface
+### Web Interface
 
-1. Navigieren Sie zur Pwnagotchi-Web-UI (normalerweise `http://10.0.0.2:8080`)
-2. Gehen Sie zu `/plugins/deauth_whitelist`
-3. Fügen Sie Netzwerke zur Whitelist hinzu:
-   - **MAC-Adresse**: `aa:bb:cc:dd:ee:ff`
-   - **ESSID**: `MeinWiFi-Netzwerk`
+1. Navigate to the Pwnagotchi Web UI (usually `http://10.0.0.2:8080`)
+2. Go to `/plugins/deauth_whitelist`
+3. Add networks to the whitelist:
+   - **MAC Address**: `aa:bb:cc:dd:ee:ff`
+   - **ESSID**: `MyWiFi-Network`
 
-### Programmgesteuert
+### Programmatic
 
-Das Plugin stellt auch eine API zur Verfügung:
+The plugin also provides an API:
 
-- **GET** `/plugins/deauth_whitelist/api/list` - Whitelist abrufen
-- **POST** `/plugins/deauth_whitelist/api/add` - Eintrag hinzufügen
-- **POST** `/plugins/deauth_whitelist/api/remove` - Eintrag entfernen
+- **GET** `/plugins/deauth_whitelist/api/list` - Retrieve whitelist
+- **POST** `/plugins/deauth_whitelist/api/add` - Add entry
+- **POST** `/plugins/deauth_whitelist/api/remove` - Remove entry
 
-Beispiel:
+Example:
 ```bash
-# Eintrag hinzufügen
+# Add entry
 curl -X POST -H "Content-Type: application/json" \
   -d '{"entry":"aa:bb:cc:dd:ee:ff"}' \
   http://10.0.0.2:8080/plugins/deauth_whitelist/api/add
 
-# Eintrag entfernen
+# Remove entry
 curl -X POST -H "Content-Type: application/json" \
   -d '{"entry":"aa:bb:cc:dd:ee:ff"}' \
   http://10.0.0.2:8080/plugins/deauth_whitelist/api/remove
 ```
 
-## Konfiguration
+## Configuration
 
-Die Whitelist wird in `/root/deauth_whitelist.json` gespeichert. Das Format ist:
+The whitelist is stored in `/root/deauth_whitelist.json`. The format is:
 
 ```json
 {
   "whitelist": [
     "aa:bb:cc:dd:ee:ff",
-    "MeinHeimNetzwerk",
+    "HomeNetwork",
     "11:22:33:44:55:66"
   ],
   "last_updated": "2025-07-11 12:00:00"
 }
 ```
 
-## Funktionsweise
+## How it works
 
-Das Plugin überwacht Deauth-Angriffe durch die `on_deauth`-Hook-Funktion. Wenn ein Angriff auf ein Netzwerk in der Whitelist versucht wird, blockiert das Plugin den Angriff und protokolliert die Aktion.
+The plugin monitors deauth attacks through the `on_deauth` hook function. When an attack on a network in the whitelist is attempted, the plugin blocks the attack and logs the action.
 
-### Überprüfungslogik
+### Verification Logic
 
-Das Plugin überprüft sowohl:
-1. **MAC-Adresse** des Access Points
-2. **ESSID/Hostname** des Netzwerks
+The plugin checks both:
+1. **MAC Address** of the Access Point
+2. **ESSID/Hostname** of the network
 
-Wenn einer dieser Werte in der Whitelist steht, wird der Deauth-Angriff blockiert.
+If either of these values is in the whitelist, the deauth attack will be blocked.
 
 ## Logs
 
-Das Plugin protokolliert seine Aktivitäten in den Pwnagotchi-Logs:
+The plugin logs its activities in the Pwnagotchi logs:
 
 ```bash
-# Logs anzeigen
+# View logs
 sudo journalctl -u pwnagotchi -f | grep deauth_whitelist
 ```
 
-Typische Log-Nachrichten:
+Typical log messages:
 - `[deauth_whitelist] Plugin loaded`
 - `[deauth_whitelist] Blocking deauth for whitelisted network: MyNetwork (aa:bb:cc:dd:ee:ff)`
 - `[deauth_whitelist] Loaded X entries from whitelist`
 
-## Fehlerbehebung
+## Troubleshooting
 
-### Plugin wird nicht geladen
-1. Überprüfen Sie die Dateiberechtigungen:
+### Plugin not loading
+1. Check file permissions:
    ```bash
    sudo chmod 644 /usr/local/share/pwnagotchi/custom-plugins/deauth_whitelist.py
    ```
 
-2. Überprüfen Sie die Konfiguration in `/etc/pwnagotchi/config.toml`
+2. Check the configuration in `/etc/pwnagotchi/config.toml`
 
-3. Überprüfen Sie die Logs:
+3. Check the logs:
    ```bash
    sudo journalctl -u pwnagotchi -f
    ```
 
-### Web-Interface nicht erreichbar
-1. Stellen Sie sicher, dass die Pwnagotchi-Web-UI aktiviert ist
-2. Überprüfen Sie, ob der Webserver läuft
-3. Navigieren Sie direkt zu: `http://10.0.0.2:8080/plugins/deauth_whitelist`
+### Web interface not accessible
+1. Ensure that the Pwnagotchi Web UI is enabled
+2. Check if the web server is running
+3. Navigate directly to: `http://10.0.0.2:8080/plugins/deauth_whitelist`
 
-### Whitelist wird nicht gespeichert
-1. Überprüfen Sie die Berechtigungen für `/root/deauth_whitelist.json`
-2. Stellen Sie sicher, dass genügend Speicherplatz vorhanden ist
+### Whitelist not being saved
+1. Check permissions for `/root/deauth_whitelist.json`
+2. Ensure sufficient disk space is available
 
-## Lizenz
+## License
 
-GPL v3 - Siehe LICENSE-Datei für Details.
+GPL v3 - See LICENSE file for details.
 
-## Beitragen
+## Contributing
 
-Pull Requests und Issues sind willkommen! Bitte folgen Sie den Pwnagotchi-Plugin-Entwicklungsrichtlinien.
+Pull requests and issues are welcome! Please follow the Pwnagotchi plugin development guidelines.
 
-## Haftungsausschluss
+## Disclaimer
 
-Dieses Plugin ist nur für autorisierte Penetrationstests und Bildungszwecke bestimmt. Der Benutzer ist für die ordnungsgemäße und legale Verwendung verantwortlich.
+This plugin is intended only for authorized penetration testing and educational purposes. The user is responsible for proper and legal usage.
