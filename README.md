@@ -107,21 +107,94 @@ Typical log messages:
    sudo chmod 644 /usr/local/share/pwnagotchi/custom-plugins/deauth_whitelist.py
    ```
 
-2. Check the configuration in `/etc/pwnagotchi/config.toml`
+2. Check the configuration in `/etc/pwnagotchi/config.toml`:
+   ```bash
+   grep -n "deauth_whitelist" /etc/pwnagotchi/config.toml
+   ```
 
 3. Check the logs:
+   ```bash
+   sudo journalctl -u pwnagotchi -f | grep deauth_whitelist
+   ```
+
+### Web interface not accessible
+
+**The web interface URL is: `http://10.0.0.2:8080/plugins/deauth_whitelist`**
+
+1. **Ensure that the Pwnagotchi Web UI is enabled** in `/etc/pwnagotchi/config.toml`:
+   ```toml
+   ui.web.enabled = true
+   ui.web.port = 8080
+   ```
+
+2. **Check if the web server is running**:
+   ```bash
+   sudo netstat -tlnp | grep :8080
+   ```
+
+3. **Verify plugin is loaded**:
+   ```bash
+   sudo journalctl -u pwnagotchi | grep "deauth_whitelist.*loaded"
+   ```
+
+4. **Check plugin webhook registration**:
+   ```bash
+   sudo journalctl -u pwnagotchi | grep -E "(webhook|deauth_whitelist)"
+   ```
+
+5. **Test direct API access**:
+   ```bash
+   curl -X GET http://10.0.0.2:8080/plugins/deauth_whitelist/api/list
+   ```
+
+6. **If still not working, restart Pwnagotchi**:
+   ```bash
+   sudo systemctl restart pwnagotchi
+   ```
+
+### Common Issues
+
+**Error: "Page not found" for `/plugins/deauth_whitelist`**
+- This usually means the plugin's webhook handler is not registered
+- Check that the plugin is enabled and Pwnagotchi has been restarted
+- Verify web UI is enabled in config
+
+**Error: Plugin not appearing in logs**
+- Check file permissions and syntax errors in the plugin file
+- Ensure the plugin is enabled in config.toml
+- Try manual validation: `python3 -m py_compile /usr/local/share/pwnagotchi/custom-plugins/deauth_whitelist.py`
+
+**Error: API endpoints return 404**
+- The plugin uses the webhook system introduced in newer Pwnagotchi versions
+- Ensure you're running a compatible Pwnagotchi version
+
+### Debugging Steps
+
+1. **Check Pwnagotchi version**:
+   ```bash
+   pwnagotchi --version
+   ```
+
+2. **Validate plugin syntax**:
+   ```bash
+   python3 -m py_compile /usr/local/share/pwnagotchi/custom-plugins/deauth_whitelist.py
+   ```
+
+3. **Monitor real-time logs**:
    ```bash
    sudo journalctl -u pwnagotchi -f
    ```
 
-### Web interface not accessible
-1. Ensure that the Pwnagotchi Web UI is enabled
-2. Check if the web server is running
-3. Navigate directly to: `http://10.0.0.2:8080/plugins/deauth_whitelist`
+4. **Check whitelist file**:
+   ```bash
+   ls -la /root/deauth_whitelist.json
+   cat /root/deauth_whitelist.json
+   ```
 
 ### Whitelist not being saved
 1. Check permissions for `/root/deauth_whitelist.json`
 2. Ensure sufficient disk space is available
+3. Check for filesystem errors
 
 ## License
 

@@ -2,7 +2,9 @@
 Deauth Whitelist Plugin for Pwnagotchi
 
 This plugin manages a whitelist of networks that should not be deauthenticated.
-It integrates with the existing web UI to allow adding/removing entries.
+It integrates with the web UI through the webhook system to allow adding/removing entries.
+
+Compatible with Pwnagotchi versions that support the webhook system.
 """
 
 import os
@@ -24,15 +26,18 @@ class DeauthWhitelist(plugins.Plugin):
         self.whitelist_file = '/root/deauth_whitelist.json'
         self.whitelist = set()
         self.load_whitelist()
+        
+    def on_config_changed(self, config):
+        """Called when the configuration is changed"""
+        # Check if a custom whitelist file path is specified
+        if 'whitelist_file' in config:
+            self.whitelist_file = config['whitelist_file']
+            self.load_whitelist()
 
     def on_loaded(self):
         """Called when the plugin is loaded"""
         logging.info("[deauth_whitelist] Plugin loaded")
         self.ready = True
-        
-        # Register web routes if web UI is enabled
-        if hasattr(plugins, '_loaded_plugins'):
-            self._register_web_routes()
 
     def on_ready(self, agent):
         """Called when the agent is ready"""
@@ -102,19 +107,18 @@ class DeauthWhitelist(plugins.Plugin):
         """Get the current whitelist"""
         return sorted(list(self.whitelist))
 
-    def _register_web_routes(self):
-        """Register web routes for the plugin"""
-        try:
-            # Import the web application instance
-            from pwnagotchi.ui.web import app
+    def on_webhook(self, path, request):
+        """Handle webhook requests for the web interface"""
+        if not self.ready:
+            return None
             
-            @app.route('/plugins/deauth_whitelist')
-            def deauth_whitelist_index():
+        try:
+            if path == '' or path == '/':
+                # Main whitelist page
                 return render_template_string(WHITELIST_TEMPLATE, 
                                             whitelist=self.get_whitelist())
             
-            @app.route('/plugins/deauth_whitelist/api/add', methods=['POST'])
-            def deauth_whitelist_add():
+            elif path == '/api/add' and request.method == 'POST':
                 entry = request.json.get('entry', '').strip()
                 if entry:
                     if self.add_to_whitelist(entry):
@@ -123,21 +127,20 @@ class DeauthWhitelist(plugins.Plugin):
                         return jsonify({'success': False, 'message': 'Entry already exists'})
                 return jsonify({'success': False, 'message': 'Invalid entry'})
             
-            @app.route('/plugins/deauth_whitelist/api/remove', methods=['POST'])
-            def deauth_whitelist_remove():
+            elif path == '/api/remove' and request.method == 'POST':
                 entry = request.json.get('entry', '').strip()
                 if self.remove_from_whitelist(entry):
                     return jsonify({'success': True, 'message': f'Removed "{entry}" from whitelist'})
                 return jsonify({'success': False, 'message': 'Entry not found'})
             
-            @app.route('/plugins/deauth_whitelist/api/list')
-            def deauth_whitelist_list():
+            elif path == '/api/list':
                 return jsonify({'whitelist': self.get_whitelist()})
                 
-            logging.info("[deauth_whitelist] Web routes registered")
-            
         except Exception as e:
-            logging.error(f"[deauth_whitelist] Failed to register web routes: {e}")
+            logging.error(f"[deauth_whitelist] Webhook error: {e}")
+            return jsonify({'success': False, 'message': 'Internal error'})
+            
+        return None
 
 
 # HTML template for the web interface
