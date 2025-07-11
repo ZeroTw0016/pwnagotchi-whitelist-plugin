@@ -1,0 +1,86 @@
+# Pwnagotchi Whitelist Plugin Configuration
+# This file contains default configuration options for the whitelist plugin
+
+# Main plugin configuration
+main:
+  plugins:
+    whitelist:
+      # Enable or disable the whitelist plugin
+      enabled: true
+      
+      # Whitelist enforcement mode
+      # 'strict' - Block attacks on any error, err on side of caution
+      # 'lenient' - Allow attacks on errors, only block confirmed whitelisted networks
+      enforcement_mode: 'strict'
+      
+      # File paths
+      whitelist_file: '/etc/pwnagotchi/whitelist.json'
+      audit_log_file: '/var/log/pwnagotchi_whitelist.log'
+      
+      # Automatic backup settings
+      auto_backup: true
+      backup_frequency: '24h'  # Create backups every 24 hours
+      max_backups: 5           # Keep maximum 5 backup files
+      
+      # Web interface settings
+      web_interface:
+        enabled: true
+        entries_per_page: 25
+        enable_search: true
+        enable_filters: true
+        show_stats: true
+        
+      # Security settings
+      security:
+        enable_rate_limiting: true
+        max_requests_per_minute: 60
+        enable_input_validation: true
+        log_all_actions: true
+        
+      # Logging settings
+      logging:
+        level: 'INFO'           # DEBUG, INFO, WARNING, ERROR
+        enable_audit_log: true
+        max_audit_entries: 1000
+        
+      # Default whitelist entries (examples)
+      # These will be added automatically when the plugin first starts
+      default_entries:
+        - bssid: '00:11:22:33:44:55'
+          ssid: 'MyHomeNetwork'
+          description: 'Home WiFi network'
+          enabled: true
+          
+        - ssid: 'COMPANY_*'
+          description: 'Company networks (wildcard)'
+          use_wildcard: true
+          enabled: true
+          
+        - ssid: 'Guest_Network'
+          description: 'Guest access point'
+          enabled: false
+          
+      # Advanced pattern matching
+      pattern_matching:
+        enable_wildcard: true    # Enable wildcard patterns (*, ?)
+        enable_regex: true       # Enable regular expressions
+        case_sensitive: false    # Case sensitive SSID matching
+        
+      # Import/Export settings
+      import_export:
+        allow_import: true
+        allow_export: true
+        validate_imports: true
+        backup_before_import: true
+        
+      # Monitoring and alerts
+      monitoring:
+        enable_stats: true
+        stats_update_interval: 300  # Update stats every 5 minutes
+        alert_on_blocked_attacks: true
+        
+      # Performance settings
+      performance:
+        cache_whitelist: true
+        cache_timeout: 300       # Cache whitelist for 5 minutes
+        async_operations: true   # Use async for file operations where possible
