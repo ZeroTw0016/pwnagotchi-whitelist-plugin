@@ -3,13 +3,3 @@
 
 # Plugin aktivieren
 main.plugins.deauth_whitelist.enabled = true
-
-# Optional: Alternativer Pfad für die Whitelist-Datei
-# main.plugins.deauth_whitelist.whitelist_file = "/custom/path/to/whitelist.json"
-
-# Andere relevante Pwnagotchi-Einstellungen für Webserver
-ui.web.enabled = true
-ui.web.address = "0.0.0.0"
-ui.web.port = 8080
-ui.web.username = "changeme"
-ui.web.password = "changeme"
