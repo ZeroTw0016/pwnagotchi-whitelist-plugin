@@ -14,7 +14,7 @@ Ein Plugin für Pwnagotchi, das eine Whitelist für Deauthentication-Angriffe ve
 
 1. Kopieren Sie `deauth_whitelist.py` in das Pwnagotchi-Plugin-Verzeichnis:
    ```bash
-   sudo cp deauth_whitelist.py /usr/local/lib/python3.7/dist-packages/pwnagotchi/plugins/default/
+   sudo cp deauth_whitelist.py /usr/local/share/pwnagotchi/custom-plugins/
    ```
 
 2. Aktivieren Sie das Plugin in der Pwnagotchi-Konfiguration (`/etc/pwnagotchi/config.toml`):
@@ -104,7 +104,7 @@ Typische Log-Nachrichten:
 ### Plugin wird nicht geladen
 1. Überprüfen Sie die Dateiberechtigungen:
    ```bash
-   sudo chmod 644 /usr/local/lib/python3.7/dist-packages/pwnagotchi/plugins/default/deauth_whitelist.py
+   sudo chmod 644 /usr/local/share/pwnagotchi/custom-plugins/deauth_whitelist.py
    ```
 
 2. Überprüfen Sie die Konfiguration in `/etc/pwnagotchi/config.toml`
