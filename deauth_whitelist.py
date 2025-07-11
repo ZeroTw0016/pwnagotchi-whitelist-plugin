@@ -12,7 +12,14 @@ import json
 import logging
 import pwnagotchi.plugins as plugins
 from pwnagotchi.utils import StatusFile
-from flask import render_template_string, request, jsonify, redirect, url_for
+
+# Import Flask components only when needed to avoid import errors
+try:
+    from flask import render_template_string, request, jsonify, redirect, url_for
+    FLASK_AVAILABLE = True
+except ImportError:
+    FLASK_AVAILABLE = False
+    logging.warning("[deauth_whitelist] Flask not available, web interface disabled")
 
 
 class DeauthWhitelist(plugins.Plugin):
@@ -109,7 +116,7 @@ class DeauthWhitelist(plugins.Plugin):
 
     def on_webhook(self, path, request):
         """Handle webhook requests for the web interface"""
-        if not self.ready:
+        if not self.ready or not FLASK_AVAILABLE:
             return None
             
         try:
