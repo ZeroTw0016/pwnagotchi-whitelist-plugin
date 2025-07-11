@@ -1,5 +1,8 @@
-# Beispiel-Konfiguration für das Deauth Whitelist Plugin
-# Diese Einstellungen sollten in /etc/pwnagotchi/config.toml hinzugefügt werden
+# Example configuration for the Deauth Whitelist Plugin
+# These settings should be added to /etc/pwnagotchi/config.toml
 
-# Plugin aktivieren
+# Enable the plugin
 main.plugins.deauth_whitelist.enabled = true
+
+# Optional: Alternative path for the whitelist file
+# main.plugins.deauth_whitelist.whitelist_file = "/custom/path/to/whitelist.json"
