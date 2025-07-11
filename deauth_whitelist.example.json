@@ -1,0 +1,9 @@
+{
+  "whitelist": [
+    "aa:bb:cc:dd:ee:ff",
+    "MeinHeimNetzwerk",
+    "BüroWiFi",
+    "11:22:33:44:55:66"
+  ],
+  "last_updated": "2025-07-11 12:00:00"
+}
